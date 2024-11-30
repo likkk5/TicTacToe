@@ -1,0 +1,133 @@
+﻿@using BlazorTicTacToe.Shared
+@if(CurrentRoom is not null)
+{
+    <h3 class="text-2xl font-bold py-2">@CurrentRoom.RoomName</h3>
+
+    if(CurrentRoom.PlayerList.Count < 2)
+    {
+        <h4>Waiting for another player to join...</h4>
+    }
+
+    if(!CurrentRoom.Game.IsGameStarted && CurrentRoom.Game.PlayerXId != _myPlayerId && 
+        CurrentRoom.PlayerList.Count == 2)
+    {
+        <h4>Waiting for other player to start the game...</h4>
+    }
+
+    if (CurrentRoom.Game.IsGameOver && !CurrentRoom.Game.IsDraw)
+    {
+        <h4>Game over! Winner: @CurrentRoom.Game.Winner</h4>
+    }
+
+    if (CurrentRoom.Game.IsGameOver && CurrentRoom.Game.IsDraw)
+    {
+        <h4>Game over! Draw!</h4>
+    }
+
+    if((!CurrentRoom.Game.IsGameStarted || CurrentRoom.Game.IsGameOver) 
+        && CurrentRoom.Game.PlayerXId == _myPlayerId 
+        && CurrentRoom.PlayerList.Count == 2)
+    {
+        <button @onclick="@StartGame"> Start Game </button>
+    }
+
+    if (CurrentRoom.Game.IsGameStarted)
+    {
+        <h4>It's @CurrentRoom.Game.CurrentPlayerSymbol's Turn.</h4>
+        <span>Currently playing: @CurrentRoom.PlayerList[0].Name (X), @CurrentRoom.PlayerList[1].Name (O)</span>
+
+        <table class="tic-tac-toe">
+            @for (int row = 0; row < 3; row++)
+            {
+                <tr>
+                    @for(int col = 0; col < 3; col++)
+                    {
+                        var r = row;
+                        var c = col;
+                        <td @onclick="() => OnCellClick(r, c)">
+                            @CurrentRoom.Game.BoardList[row][col]
+                        </td>
+
+                    }
+                </tr>
+            }
+        </table>
+        
+        @if(!IsMyTurn() && !CurrentRoom.Game.IsGameOver)
+        {
+            <p>Please wait for the other player to make a move.</p>
+        }
+    }
+}
+@code {
+    private string? _myPlayerId;
+    [CascadingParameter]
+    public HubConnection? HubConnection { get; set; }
+    [Parameter]
+    public GameRoom? CurrentRoom { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (CurrentRoom is null || HubConnection is null || HubConnection.ConnectionId is null)
+            return;
+
+        _myPlayerId = HubConnection.ConnectionId;
+
+        HubConnection.On<Player>("OnPlayerJoined", player =>
+        {
+            CurrentRoom.PlayerList.Add(player);
+            StateHasChanged();
+        });
+
+        HubConnection.On<GameRoom>("UpdateGame", serverRoom =>
+        {
+            CurrentRoom = serverRoom;
+            StateHasChanged();
+        });
+    }
+
+    private async Task StartGame()
+    {
+        if (HubConnection is null || CurrentRoom is null) return;
+
+        await HubConnection.InvokeAsync("StartGame", CurrentRoom.RoomId);
+    }
+
+    private void OnCellClick(int row, int col)
+    {
+        Console.WriteLine($"Clicked on row {row}, col {col}");
+        MakeMove(row, col);
+
+    }
+    private async Task MakeMove(int row, int col)
+    {
+
+        Console.WriteLine($"MakeMove called with row: {row}, col: {col}");
+
+        if(IsMyTurn() && CanMove())
+            await HubConnection.InvokeAsync("MakeMove", CurrentRoom.RoomId, row, col, _myPlayerId);
+            StateHasChanged();
+    }
+
+    private bool IsMyTurn()
+    {
+
+        Console.WriteLine($"Current Player: {CurrentRoom.Game.CurrentPlayerId}, My Player ID: {_myPlayerId}");
+
+        if(CurrentRoom is not null)
+        {
+            return _myPlayerId == CurrentRoom.Game.CurrentPlayerId;
+        }
+
+        return false;
+    }
+
+
+    private bool CanMove()
+    {
+        return CurrentRoom is not null && CurrentRoom.Game.IsGameStarted
+        && !CurrentRoom.Game.IsGameOver
+        && HubConnection is not null;
+    }
+
+}

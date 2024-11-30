@@ -1,0 +1,43 @@
+# .NET Core Server
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.suo
+*.cache
+*.log
+*.vscode/
+*.vs/
+
+# .NET Core Client
+bin/
+obj/
+node_modules/
+*.dll
+*.pdb
+*.exe
+*.suo
+*.cache
+*.log
+*.vscode/
+*.vs/
+
+# Visual Studio files
+.vscode/
+.vs/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Package files
+*.nupkg
+*.paket.restore.log
+bower_components/
+jspm_packages/
+
+# GhostDoc plugin setting file
+*.GhostDoc.xml
