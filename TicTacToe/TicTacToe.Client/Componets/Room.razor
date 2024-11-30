@@ -37,10 +37,10 @@
         <span>Currently playing: @CurrentRoom.PlayerList[0].Name (X), @CurrentRoom.PlayerList[1].Name (O)</span>
 
         <table class="tic-tac-toe">
-            @for (int row = 0; row < 3; row++)
+            @for (int row = 0; row < 5; row++)
             {
                 <tr>
-                    @for(int col = 0; col < 3; col++)
+                    @for(int col = 0; col < 5; col++)
                     {
                         var r = row;
                         var c = col;

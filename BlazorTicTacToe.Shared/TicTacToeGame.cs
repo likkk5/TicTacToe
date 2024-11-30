@@ -31,10 +31,10 @@ public class TicTacToeGame
     {
         BoardList.Clear();
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 5; i++)
         {
-            var row = new List<string>(3);
-            for (int j = 0; j < 3; j++)
+            var row = new List<string>(5);
+            for (int j = 0; j < 5; j++)
             {
                 row.Add(string.Empty);
             }
@@ -71,7 +71,7 @@ public class TicTacToeGame
             return false;
         }
 
-        if (row < 0 || row >= 3 || col < 0 || col >= 3)
+        if (row < 0 || row >= 5 || col < 0 || col >= 5)
         {
             Console.WriteLine($"Invalid move: row {row}, col {col} is out of bounds.");
             return false;
@@ -89,44 +89,80 @@ public class TicTacToeGame
         return true;
     }
 
+    //public string CheckWinner()
+    //{
+    //    for (int i = 0;i < 3;i++)
+    //    {
+    //        if (!string.IsNullOrEmpty(BoardList[i][0]) 
+    //            && BoardList[i][0] == BoardList[i][1]
+    //            && BoardList[i][1] == BoardList[i][2])
+    //        {
+    //            return BoardList[i][0];
+    //        }
+
+    //        if (!string.IsNullOrEmpty(BoardList[0][i])
+    //          && BoardList[0][i] == BoardList[1][i]
+    //          && BoardList[1][i] == BoardList[2][i])
+    //        {
+    //            return BoardList[0][i];
+    //        }
+
+    //        // Diagonals
+
+    //        if (!string.IsNullOrEmpty(BoardList[0][0])
+    //        && BoardList[0][0] == BoardList[1][1]
+    //        && BoardList[1][1] == BoardList[2][2])
+    //        {
+    //            return BoardList[0][0];
+    //        }
+
+    //        if (!string.IsNullOrEmpty(BoardList[0][2])
+    //          && BoardList[0][2] == BoardList[1][1]
+    //          && BoardList[1][1] == BoardList[2][0])
+    //        {
+    //            return BoardList[0][2];
+    //        }
+    //    }
+
+    //    return string.Empty;
+    //}
     public string CheckWinner()
     {
-        for (int i = 0;i < 3;i++)
+        for (int i = 0; i < 5; i++)
         {
-            if (!string.IsNullOrEmpty(BoardList[i][0]) 
-                && BoardList[i][0] == BoardList[i][1]
-                && BoardList[i][1] == BoardList[i][2])
+            for (int j = 0; j < 5; j++)
             {
-                return BoardList[i][0];
-            }
+                if (!string.IsNullOrEmpty(BoardList[i][j]))
+                {
+                    // Проверяем горизонталь (ряд)
+                    if (j <= 5 - 5 && BoardList[i][j] == BoardList[i][j + 1] && BoardList[i][j] == BoardList[i][j + 2] && BoardList[i][j] == BoardList[i][j + 3] && BoardList[i][j] == BoardList[i][j + 4])
+                    {
+                        return BoardList[i][j];
+                    }
 
-            if (!string.IsNullOrEmpty(BoardList[0][i])
-              && BoardList[0][i] == BoardList[1][i]
-              && BoardList[1][i] == BoardList[2][i])
-            {
-                return BoardList[0][i];
-            }
+                    // Проверяем вертикаль (столбец)
+                    if (i <= 5 - 5 && BoardList[i][j] == BoardList[i + 1][j] && BoardList[i][j] == BoardList[i + 2][j] && BoardList[i][j] == BoardList[i + 3][j] && BoardList[i][j] == BoardList[i + 4][j])
+                    {
+                        return BoardList[i][j];
+                    }
 
-            // Diagonals
+                    // Проверяем диагональ (левый верх — правый низ)
+                    if (i <= 5 - 5 && j <= 5 - 5 && BoardList[i][j] == BoardList[i + 1][j + 1] && BoardList[i][j] == BoardList[i + 2][j + 2] && BoardList[i][j] == BoardList[i + 3][j + 3] && BoardList[i][j] == BoardList[i + 4][j + 4])
+                    {
+                        return BoardList[i][j];
+                    }
 
-            if (!string.IsNullOrEmpty(BoardList[0][0])
-            && BoardList[0][0] == BoardList[1][1]
-            && BoardList[1][1] == BoardList[2][2])
-            {
-                return BoardList[0][0];
-            }
-
-            if (!string.IsNullOrEmpty(BoardList[0][2])
-              && BoardList[0][2] == BoardList[1][1]
-              && BoardList[1][1] == BoardList[2][0])
-            {
-                return BoardList[0][2];
+                    // Проверяем диагональ (правый верх — левый низ)
+                    if (i <= 5 - 5 && j >= 4 && BoardList[i][j] == BoardList[i + 1][j - 1] && BoardList[i][j] == BoardList[i + 2][j - 2] && BoardList[i][j] == BoardList[i + 3][j - 3] && BoardList[i][j] == BoardList[i + 4][j - 4])
+                    {
+                        return BoardList[i][j];
+                    }
+                }
             }
         }
 
         return string.Empty;
     }
-
     public bool CheckDraw()
     {
         return IsDraw = BoardList.All(row => row.All(cell => !string.IsNullOrEmpty(cell)));
